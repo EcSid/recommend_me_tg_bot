@@ -126,7 +126,7 @@ async def on_text_to_search_message(message: Message, state: FSMContext):
         return 
       await state.set_state(Res.message_with_response)
       choice_in_word = get_choice_in_art(art)
-      res_with_recommendation = await generate(f'Посоветуй {choice_in_word} исходя из {filter_to_search}, который называется {message.text}. Если {message.text} - исполнитель или режиссёр, или писатель, то ни в коем случае не указывай его произведения. Не начинай сообщение ответ с утвердильных слов, типа "Конечно", "Хорошо" и тд')
+      res_with_recommendation = await generate(f'Посоветуй {choice_in_word} исходя из {filter_to_search}, который называется {message.text}. Если {message.text} - исполнитель или режиссёр, или писатель, то ни в коем случае не указывай произведения, созданные им. Не начинай сообщение ответ с утвердильных слов, типа "Конечно", "Хорошо" и тд')
       if not res_with_recommendation:
           await message.answer('Нейросеть не смогла дать ответ, повтори запрос позже')
       else:
@@ -173,4 +173,4 @@ async def message_to_recommend(callback: CallbackQuery, state: FSMContext):
     choice_in_filter = word_in_filter_choice[callback.data]
     choice_in_word = get_choice_in_art(art)
     choice_in_ending = get_choice_in_ending(art)
-    await callback.message.edit_text(f'Введи {choice_in_filter}, чтобы найти {choice_in_word}, подходящ{choice_in_ending} тебе по мнению нейросети')
+    await callback.message.edit_text(f'Введи {choice_in_filter}, чтобы найти произведения, подходящ{choice_in_ending} тебе по мнению нейросети')
