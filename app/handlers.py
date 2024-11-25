@@ -11,6 +11,7 @@ import app.keyboards as kb
 import os
 from dotenv import load_dotenv
 from io import BytesIO
+import numpy as np
 
 load_dotenv()
 
@@ -95,7 +96,9 @@ async def get_arts_to_get_color(message: Message, state: FSMContext):
     res_with_color = await generate(f'Верни уникальный цвет вкуса пользователя в формате rgb (верни только 3 числа через запятую, больше ничего не отправляй!), учитывая его любимые фильмы, книги или музыку, которые даны в следующей строке через запятую: {message.text}. Учти, что книги или фильмы с жанром "Драма", "Мелодрама", грустная музыка делают цвет голубоватым (но не полностью голубым), а книги или фильмы с жанром "Боевик", "Триллер", "Ужасы", тяжелая музыка (металл, тяжёлый рок) делают цвет почти полностью ярко выраженным красным, а оптимистичные или весёлые книги, фильмы, музыка (семейные фильмы, комедии) делают цвет почти полностью желтым. Чем больше произведений, сопутсвующих данным условиям, чем ярче будет соответсвующий цвет. Делай цвета немного необычными, но не в коем случае не отклоняйся о  условий данных выше. ОТПРАВЬ ТОЛЬКО 3 ЧИСЛА ЧЕРЕЗ ЗАПЯТУЮ, БОЛЬШЕ НИЧЕГО НЕ ПИШИ')
     res_with_color_text = res_with_color.choices[0].message.content
     tuple_color = tuple(list(map(lambda x: int(x), res_with_color_text.split(','))))
-    img = Image.new('RGB', (500, 500), tuple_color)
+    arr_with_img = np.full((500, 500, 3), (0, 0, 0), dtype=np.uint8)
+    arr_with_img[:, :] = tuple_color
+    img = Image.fromarray(arr_with_img)
     # img.save(f'path/{tuple_color}.png', 'PNG')
     # final_img = FSInputFile(f'path/{tuple_color}.png', filename=f'{tuple_color}.jpg')
     buffered = io.BytesIO()
@@ -104,8 +107,7 @@ async def get_arts_to_get_color(message: Message, state: FSMContext):
     buffer_img = BufferedInputFile(buffered.getvalue(), 'color.jpeg')
     await message.answer_photo(photo=buffer_img, caption=f'Вот твой уникальный цвет в формате rgb: ({res_with_color_text})')
     await state.clear()
-  except:
-    await message.answer('На сервере возникла ошибка, повторите ваш запрос позже')
+ 
   finally:
     await loading_msg.delete()
 
